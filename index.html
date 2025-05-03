@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Unity Project Validator</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Unity Project Validator</h1>
+            <p class="subtitle">Follow the steps below to validate your Unity project</p>
+        </header>
+
+        <!-- New steps container for vertical step process -->
+        <div id="steps-container" class="steps-container">
+            <!-- Steps will be dynamically created by JavaScript -->
+        </div>
+
+        <!-- We'll move elements to their respective steps, but keep them in DOM -->
+        <div class="hidden-elements">
+            <input type="file" id="zip-input" accept=".zip" />
+            <div id="submission-data" class="zip-status"></div>
+            <button id="run-tests" class="btn hidden" disabled>Run Tests</button>
+            <button id="test-result" class="btn hidden" disabled></button>
+            <div id="file-status" class="file-status hidden"></div>
+        </div>
+
+        <section class="results-section card hidden" id="results-section">
+            <ul id="results-list"></ul>
+            <button id="download-report" class="btn hidden">Download HTML Report</button>
+        </section>
+    </div>
+
+    <!-- libs -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
+    <!-- app modules -->
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
