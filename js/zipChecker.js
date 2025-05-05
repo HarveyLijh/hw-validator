@@ -14,7 +14,7 @@ export async function runZipTests(file, updateResult) {
     testResults.push({
       name: "No __MACOSX folder",
       passed: test1Passed,
-      message: test1Passed ? '✅ PASS: No "__MACOSX" folder.' : '❌ FAIL: "__MACOSX" folder present.'
+      message: test1Passed ? '✅ No "__MACOSX" folder.' : '❌ FAIL: "__MACOSX" folder present.'
     });
     updateResult(testResults[0].message);
     
