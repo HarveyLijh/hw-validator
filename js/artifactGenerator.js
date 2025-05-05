@@ -1,5 +1,5 @@
-// Build a standalone HTML report, embedding the ZIP in Base64
-export function generateReport({
+// Build a standalone HTML artfact, embedding the ZIP in Base64
+export function generateArtifact({
   file,
   entries,
   content,
@@ -10,7 +10,7 @@ export function generateReport({
   return new Promise((resolve) => {
     const reader = new FileReader();
 
-    // Set up the onload handler to complete the HTML report generation
+    // Set up the onload handler to complete the HTML artfiact generation
     reader.onload = function (event) {
       // This is the base64 data URL of the file
       const base64Data = event.target.result;
@@ -34,7 +34,7 @@ export function generateReport({
       const html = `
       <!DOCTYPE html>
       <html lang="en"><head><meta charset="UTF-8">
-      <title>Unity Validator Report</title>
+      <title>Unity Submission Artifact</title>
       <style>
         body {
           font-family: sans-serif;
@@ -140,7 +140,7 @@ export function generateReport({
         }
       </style>
       </head><body>
-        <h1>Unity Validator Report <span class="status-badge ${
+        <h1>Unity Submission Artifact <span class="status-badge ${
           passed ? "passed" : "failed"
         }">${passed ? "PASSED" : "FAILED"}</span></h1>
         

@@ -1,6 +1,6 @@
 // All DOM wiring & state
 import { runZipTests } from "./zipChecker.js";
-import { generateReport } from "./reportGenerator.js";
+import { generateArtifact } from "./artifactGenerator.js";
 
 // UI Elements
 const zipInput = document.getElementById("zip-input");
@@ -8,7 +8,7 @@ const runBtn = document.getElementById("run-tests");
 const resultBtn = document.getElementById("test-result");
 const resultsList = document.getElementById("results-list");
 const submissionData = document.getElementById("submission-data");
-const downloadBtn = document.getElementById("download-report");
+const downloadBtn = document.getElementById("download-artifact");
 const fileStatus = document.getElementById("file-status");
 const stepsContainer = document.getElementById("steps-container");
 
@@ -42,11 +42,11 @@ function initializeSteps() {
       "Analyze your project structure and files"
     );
     
-    // Step 3: Download Report
+    // Step 3: Download Submission Artifact
     const step3 = createStepElement(
       STEPS.DOWNLOAD, 
-      "Download HTML Report", 
-      "Save the validation results as an HTML file"
+      "Download HTML Submission Artifact", 
+      "Save the submission artifact as an HTML file"
     );
     
     // Add steps to container
@@ -344,12 +344,12 @@ downloadBtn.addEventListener("click", async () => {
   updateStepStatus(STEPS.DOWNLOAD, 'loading');
   
   try {
-    const reportHtml = await generateReport(lastTestData);
-    const blob = new Blob([reportHtml], { type: "text/html" });
+    const artifactHtml = await generateArtifact(lastTestData);
+    const blob = new Blob([artifactHtml], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "unity-validator-report.html";
+    a.download = "unity-submission-artifact.html";
     document.body.append(a);
     a.click();
     a.remove();
@@ -361,7 +361,7 @@ downloadBtn.addEventListener("click", async () => {
     updateStepStatus(STEPS.DOWNLOAD, 'completed');
     downloadBtn.innerHTML = 'Download Complete ✓';
   } catch (error) {
-    console.error("Report generation failed:", error);
+    console.error("Artifact generation failed:", error);
     updateStepStatus(STEPS.DOWNLOAD, 'error');
     downloadBtn.innerHTML = 'Download Failed ✗';
   } finally {
