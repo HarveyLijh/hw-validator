@@ -81,7 +81,29 @@ export default class UIManager {
       </button>
     `;
     
+    // Add elements to container
     this.stepsContainer.append(step1, step2, step3);
+    
+    // Add Step 4 (Submit) if document.referrer is not empty
+    if (document.referrer) {
+      const step4 = document.createElement('div');
+      step4.className = 'step disabled';
+      step4.id = 'step-4';
+      step4.innerHTML = `
+        <h3><span class="step-number">4</span> Submit Artifact</h3>
+        <div class="mt-4">
+          <p class="text-sm text-gray-600 mb-3">
+            <i class="fas fa-info-circle text-blue-500 mr-1"></i>
+            Return to <a href="${document.referrer}" class="text-blue-600 hover:underline">${new URL(document.referrer).hostname}</a> to submit your artifact.
+          </p>
+          <button id="btn-submit-artifact" disabled class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded transition-all">
+            <i class="fas fa-external-link-alt"></i>Return to Submission Page
+          </button>
+        </div>
+      `;
+      this.stepsContainer.append(step4);
+    }
+    
     console.log('Steps rendered');
 
     // Add step number styling
@@ -388,6 +410,24 @@ export default class UIManager {
 
         this.updateStepStatus(3, 'completed');
         downloadBtn.innerHTML = '<i class="fas fa-download"></i>Download Artifact';
+        
+        // If step 4 exists (document.referrer is available), activate it
+        console.log('Document referrer:', document.referrer);
+        if (document.referrer) {
+          const submitBtn = this.stepsContainer.querySelector('#btn-submit-artifact');
+          if (submitBtn) {
+            const step4 = this.stepsContainer.querySelector('#step-4');
+            this.updateStepStatus(4, 'active');
+            submitBtn.disabled = false;
+            
+            // Highlight step 4
+            step4.classList.add('highlight-step');
+            setTimeout(() => step4.classList.remove('highlight-step'), 5000);
+            
+            // Scroll to step 4
+            step4.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
       } catch (err) {
         this.appendResult(`❌ Artifact Error: ${err.message}`);
         this.updateStepStatus(3, 'error');
@@ -396,6 +436,15 @@ export default class UIManager {
         downloadBtn.disabled = false;
       }
     });
+    
+    // Add event listener for submit button if it exists
+    const submitBtn = this.stepsContainer.querySelector('#btn-submit-artifact');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', () => {
+        // Navigate back to the referrer URL
+        window.location.href = document.referrer;
+      });
+    }
   }
 
   formatFileSize(bytes) {
