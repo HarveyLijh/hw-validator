@@ -1,4 +1,6 @@
 // core/uiManager.js
+import { getReturnUrl } from './utils/index.js';
+
 export default class UIManager {
   constructor(assignment) {
     this.assignment = assignment;
@@ -7,6 +9,13 @@ export default class UIManager {
     this.hasInputs = false;
     this.validationErrors = [];
     this.inputComponents = []; // Will store the input components
+    
+    // Log document.referrer for testing purposes
+    console.log('Testing document.referrer:', document.referrer);
+    
+    // Get the return URL (from URL parameter or referrer)
+    this.returnUrl = getReturnUrl();
+    console.log('Return URL:', this.returnUrl);
   }
 
   initialize() {
@@ -84,24 +93,32 @@ export default class UIManager {
     // Add elements to container
     this.stepsContainer.append(step1, step2, step3);
     
-    // Add Step 4 (Submit) if document.referrer is not empty
-    if (document.referrer) {
-      const step4 = document.createElement('div');
-      step4.className = 'step disabled';
-      step4.id = 'step-4';
-      step4.innerHTML = `
-        <h3><span class="step-number">4</span> Submit Artifact</h3>
-        <div class="mt-4">
-          <p class="text-sm text-gray-600 mb-3">
-            <i class="fas fa-info-circle text-blue-500 mr-1"></i>
-            Return to <a href="${document.referrer}" class="text-blue-600 hover:underline">${new URL(document.referrer).hostname}</a> to submit your artifact.
-          </p>
-          <button id="btn-submit-artifact" disabled class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded transition-all">
-            <i class="fas fa-external-link-alt"></i>Return to Submission Page
-          </button>
-        </div>
-      `;
-      this.stepsContainer.append(step4);
+    // Add Step 4 (Submit) if returnUrl is available
+    if (this.returnUrl) {
+      try {
+        // Create step 4 with the return URL
+        const url = new URL(this.returnUrl);
+        const hostname = url.hostname;
+        
+        const step4 = document.createElement('div');
+        step4.className = 'step disabled';
+        step4.id = 'step-4';
+        step4.innerHTML = `
+          <h3><span class="step-number">4</span> Submit Artifact</h3>
+          <div class="mt-4">
+            <p class="text-sm text-gray-600 mb-3">
+              <i class="fas fa-info-circle text-blue-500 mr-1"></i>
+              Return to <a href="${this.returnUrl}" class="text-blue-600 hover:underline">${hostname}</a> to submit your artifact.
+            </p>
+            <button id="btn-submit-artifact" disabled class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded transition-all">
+              <i class="fas fa-external-link-alt"></i>Return to Submission Page
+            </button>
+          </div>
+        `;
+        this.stepsContainer.append(step4);
+      } catch (err) {
+        console.error('Error creating return URL step:', err);
+      }
     }
     
     console.log('Steps rendered');
@@ -411,9 +428,8 @@ export default class UIManager {
         this.updateStepStatus(3, 'completed');
         downloadBtn.innerHTML = '<i class="fas fa-download"></i>Download Artifact';
         
-        // If step 4 exists (document.referrer is available), activate it
-        console.log('Document referrer:', document.referrer);
-        if (document.referrer) {
+        // If step 4 exists (returnUrl is available), activate it
+        if (this.returnUrl) {
           const submitBtn = this.stepsContainer.querySelector('#btn-submit-artifact');
           if (submitBtn) {
             const step4 = this.stepsContainer.querySelector('#step-4');
@@ -441,8 +457,8 @@ export default class UIManager {
     const submitBtn = this.stepsContainer.querySelector('#btn-submit-artifact');
     if (submitBtn) {
       submitBtn.addEventListener('click', () => {
-        // Navigate back to the referrer URL
-        window.location.href = document.referrer;
+        // Navigate back to the return URL
+        window.location.href = this.returnUrl;
       });
     }
   }

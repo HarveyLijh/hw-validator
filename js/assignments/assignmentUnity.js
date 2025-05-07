@@ -1,20 +1,7 @@
 // assignments/assignmentUnity.js
 import AssignmentBase from '../core/assignmentBase.js';
 import { createFileUploader, createCollaboratorInput, createInputContainer } from '../inputComponents/index.js';
-
-/**
- * Escapes HTML special characters to prevent XSS when displaying code
- * @param {string} text - Text to escape
- * @returns {string} - HTML-escaped text
- */
-function escapeHtml(text) {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
+import { escapeHtml } from '../core/utils/index.js';
 
 /**
  * Reads the first n bytes of a file
