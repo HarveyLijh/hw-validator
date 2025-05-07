@@ -1,4 +1,4 @@
-// uiManager.js
+// core/uiManager.js
 export default class UIManager {
   constructor(assignment) {
     this.assignment = assignment;
@@ -367,8 +367,10 @@ export default class UIManager {
       this.updateStepStatus(3, 'loading');
 
       try {
-        const bodyHtml = this.assignment.generateArtifactBody(formEl, this.lastTestData);
-        const { generateArtifactHTML } = await import('./core/artifactGenerator.js');
+        // Fix: Await the result of generateArtifactBody since it's an async function
+        const bodyHtml = await this.assignment.generateArtifactBody(formEl, this.lastTestData);
+        
+        const { generateArtifactHTML } = await import('./artifactGenerator.js');
         const full = await generateArtifactHTML({
           file: this.lastTestData.formData.zipFile,
           title: this.assignment.assignmentName(),

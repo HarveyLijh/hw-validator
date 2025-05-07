@@ -1,46 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Unity Project Packager</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Assignment Validator</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="css/style.css">
 </head>
+<body class="bg-gray-50">
+  <div id="app" class="max-w-3xl mx-auto my-8 px-4">
+    <header class="text-center mb-8">
+      <h1 class="text-3xl font-bold text-indigo-600">Assignment Validator</h1>
+      <p id="subtitle" class="text-gray-600"></p>
+    </header>
+    <div id="steps-container" class="space-y-6"></div>
+    <section id="results-section" class="hidden mt-8">
+      <!-- download link will go here -->
+    </section>
+  </div>
 
-<body>
-    <div class="app-container">
-        <header>
-            <h1>Unity Project Packager</h1>
-            <p class="subtitle">Follow the steps below to package your Unity project for submission to Canvas</p>
-        </header>
-
-        <!-- New steps container for vertical step process -->
-        <div id="steps-container" class="steps-container">
-            <!-- Steps will be dynamically created by JavaScript -->
-        </div>
-
-        <!-- We'll move elements to their respective steps, but keep them in DOM -->
-        <div class="hidden-elements">
-            <input type="file" id="zip-input" accept=".zip" />
-            <div id="submission-data" class="zip-status"></div>
-            <button id="run-tests" class="btn hidden" disabled>Run Tests</button>
-            <button id="test-result" class="btn hidden" disabled></button>
-            <div id="file-status" class="file-status hidden"></div>
-        </div>
-
-        <section class="results-section card hidden" id="results-section">
-            <ul id="results-list"></ul>
-            <button id="download-artifact" class="btn hidden">Download Submission Artifact</button>
-        </section>
-    </div>
-
-    <!-- libs -->
-    <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
-    <!-- app modules -->
-    <script type="module" src="js/main.js"></script>
+  <!-- JSZip global (for zip‐based assignments) -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip/dist/jszip.min.js"></script>
+  <!-- entrypoint -->
+  <script type="module" src="js/main.js"></script>
 </body>
-
 </html>
