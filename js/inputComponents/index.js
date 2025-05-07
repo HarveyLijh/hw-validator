@@ -7,7 +7,7 @@
  */
 
 // Re-export components from individual files
-export { createFileUploader } from './fileUploader.js';
-export { createCollaboratorInput } from './collaboratorInput.js';
 export { createInputContainer } from './containerUtils.js';
 export { formatFileSize } from './helper.js';
+export { createFileUploader } from './fileUploader.js';
+export { createCollaboratorInput } from './collaboratorInput.js';
