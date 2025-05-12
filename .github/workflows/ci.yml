@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Validate HTML
+      run: |
+        echo "Running HTML validation..."
+        npx htmlhint "**/*.html"
+      
+    - name: Validate CSS
+      run: |
+        echo "Running CSS validation..."
+        npx stylelint "**/*.css"
+        
+    - name: Validate JavaScript
+      run: |
+        echo "Running JavaScript validation..."
+        npx eslint "**/*.js"

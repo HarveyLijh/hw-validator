@@ -135,3 +135,37 @@ dist
 .yarn/install-state.gz
 .pnp.*
 .DS_Store
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Local development
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Optional: Node.js dependencies if you decide to add them later
+/node_modules/
+/package-lock.json
+
+# Generated files
+/dist/
+/build/
+.cache/
+
+# User-specific files that shouldn't be in the template
+/assignments/local/
+*.private.*

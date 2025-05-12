@@ -1,0 +1,18 @@
+# This file marks this repository as a GitHub Template Repository
+# It ensures that when users click "Use this template", they'll get helpful configuration settings.
+
+# Repository settings
+template:
+  # Whether this repository can be used as a template
+  enabled: true
+
+  # Repository will be initialized with:
+  settings:
+    description: "A customizable web-based tool for validating assignments"
+    has_issues: true
+    has_projects: false
+    has_wiki: false
+    has_downloads: true
+    is_template: true
+    # Default branch when using the template
+    default_branch: main

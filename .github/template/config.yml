@@ -1,0 +1,6 @@
+# Template Configuration
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://github.com/harveylijh/hw-validator#readme
+    about: Check out the README for comprehensive documentation

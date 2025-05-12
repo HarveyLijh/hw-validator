@@ -1,11 +1,23 @@
-# Homework Validator
+# 📝 Homework Validator - GitHub Template
 
-A customizable web-based tool for validating assignments. This tool allows instructors to create validation workflows for student homework submissions.
+A customizable web-based tool for validating assignments. This repository is set up as a **GitHub Template** to help instructors quickly create validation workflows for student homework submissions.
+
+## 📋 Using This Template
+
+This repository is set up as a GitHub template. To use it for your own assignment validation:
+
+1. Click the green "Use this template" button at the top of the repository
+2. Select "Create a new repository"
+3. Choose your repository name and settings
+4. Clone your new repository locally
+5. Customize the assignment validation by either:
+   - Modifying the existing `UnityAssignment` in `js/assignments/assignmentUnity.js`
+   - Creating a new assignment class based on the `TemplateAssignment` in `js/assignments/assignmentTemplate.js`
+6. Update the `main.js` file to use your custom assignment
 
 ## Overview
 
 The Homework Validator is designed to help instructors validate student assignments by providing a web interface for file uploads, metadata collection, and automated validation. The system can be easily extended to support different types of assignments and custom validation logic.
-
 ## For Instructors: Customization Guide
 
 ### Project Structure

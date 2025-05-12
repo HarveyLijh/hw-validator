@@ -1,0 +1,18 @@
+# This file defines code ownership for the Homework Validator project
+# Each line is a file pattern followed by one or more owners
+
+# Default owners for everything in the repo (unless overridden below)
+* @HarveyLijh
+
+# Core modules ownership
+/js/core/ @HarveyLijh
+
+# Assignment implementations 
+/js/assignments/ @HarveyLijh
+
+# Input components
+/js/inputComponents/ @HarveyLijh
+
+# Documentation
+/docs/ @HarveyLijh
+*.md @HarveyLijh
