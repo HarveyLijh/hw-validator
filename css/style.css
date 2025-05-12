@@ -1,349 +1,320 @@
-:root {
-  --primary: #4f46e5;
-  --primary-light: #6366f1;
-  --bg: #f3f4f6;
-  --card-bg: #ffffff;
-  --text: #1f2937;
-  --muted: #6b7280;
-  --success: #10b981;
-  --error: #ef4444;
-  --disabled: #d1d5db;
-  --step-complete: #10b981;
-  --step-active: #4f46e5;
-  --step-disabled: #9ca3af;
-  --step-error: #ef4444;
-  --step-failed: #ef4444;
-  --unreached: #9ca3af;
-}
-
-* {
-  box-sizing: border-box;
+body {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   margin: 0;
   padding: 0;
+  background: #f9fafb;
 }
-
-body {
-  font-family: "Segoe UI", sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-}
-
-.app-container {
+#app {
   max-width: 800px;
   margin: 2rem auto;
-  padding: 0 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
-
 header h1 {
-  text-align: center;
-  margin-bottom: 0.5rem;
-  color: var(--primary);
+  margin-bottom: 0.2rem;
 }
-
-header .subtitle {
-  text-align: center;
-  margin-bottom: 2rem;
-  color: var(--muted);
+header p {
+  margin-top: 0;
+  color: #555;
 }
-
-.card {
-  background: var(--card-bg);
+.step {
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  margin-bottom: 1.5rem;
-}
-
-/* Steps Container */
-.steps-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.step {
-  display: flex;
-  background: var(--card-bg);
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  border-left: 5px solid var(--disabled);
+  margin-bottom: 1rem;
+  position: relative;
   transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transform-origin: top;
+  animation: slide-in 0.3s ease-out;
 }
 
-.step.active {
-  border-left-color: var(--step-active);
+.step h3 {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  margin-top: 0;
+  color: #374151;
 }
 
-.step.completed {
-  border-left-color: var(--step-complete);
+.step h3::before {
+  margin-right: 10px;
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
 }
 
 .step.disabled {
-  border-left-color: var(--step-disabled);
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
-.step.error {
-  border-left-color: var(--step-error);
+.step.disabled h3::before {
+  content: '\f023'; /* lock icon */
+  color: #9ca3af;
+}
+
+.step.active {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.2);
+}
+
+.step.active h3::before {
+  content: '\f061'; /* arrow-right icon */
+  color: #4f46e5;
+}
+
+.step.loading {
+  border-color: #6366f1;
+  opacity: 0.9;
+}
+
+.step.loading h3::before {
+  content: '\f110'; /* spinner icon */
+  color: #6366f1;
+  animation: spin 1s linear infinite;
+}
+
+.step.completed {
+  border-color: #10b981;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.2);
+  transform: scale(0.98);
+  opacity: 0.95;
+}
+
+.step.completed h3::before {
+  content: '\f00c'; /* check icon */
+  color: #10b981;
 }
 
 .step.failed {
-  border-left-color: var(--step-failed);
+  border-color: #ef4444;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
 }
 
-.step-number {
-  display: flex;
+.step.failed h3::before {
+  content: '\f00d'; /* times icon */
+  color: #ef4444;
+}
+
+.step.error {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2);
+}
+
+.step.error h3::before {
+  content: '\f071'; /* exclamation-triangle icon */
+  color: #f59e0b;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: #4f46e5;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  font-size: 1.25rem;
-  min-width: 3rem;
-  background: var(--bg);
-  position: relative;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
-.step.active .step-number {
-  color: var(--step-active);
-  background: rgba(79, 70, 229, 0.1);
+button:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.step.completed .step-number {
-  color: var(--step-complete);
-  background: rgba(16, 185, 129, 0.1);
+button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
-.step.completed .step-number::after {
-  content: "✓";
-  position: absolute;
-  font-size: 1rem;
-  right: 0.25rem;
-  bottom: 0.25rem;
+button:disabled {
+  background: #9ca3af;
+  cursor: default;
 }
 
-.step.error .step-number {
-  color: var(--step-error);
-  background: rgba(239, 68, 68, 0.1);
+button i {
+  margin-right: 0.5rem;
 }
 
-.step.error .step-number::after {
-  content: "✗";
-  position: absolute;
-  font-size: 1rem;
-  right: 0.25rem;
-  bottom: 0.25rem;
+label {
+  display: block;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  color: #374151;
 }
 
-.step.failed .step-number {
-  color: var(--step-failed);
-  background: rgba(239, 68, 68, 0.1);
+textarea, input[type="file"] {
+  margin-top: 0.5rem;
+  width: 100%;
+  font-family: inherit;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  transition: border-color 0.2s;
 }
 
-.step.failed .step-number::after {
-  content: "✗";
-  position: absolute;
-  font-size: 1rem;
-  right: 0.25rem;
-  bottom: 0.25rem;
+textarea:focus, input[type="file"]:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
 }
 
-.step-content {
+#step2-results {
+  margin-top: 1rem;
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 0.375rem;
+}
+
+#step2-results p {
+  padding: 0.5rem;
+  margin: 0.25rem 0;
+  border-radius: 0.25rem;
+  font-family: monospace;
+}
+
+#step2-results p:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.test-passed, .test-failed {
+  border-radius: 0.375rem;
   padding: 1rem;
-  flex-grow: 1;
-}
-
-.step-content h3 {
-  margin-bottom: 0.5rem;
-  color: var(--text);
-}
-
-.step-content p {
-  color: var(--muted);
-  font-size: 0.9rem;
   margin-bottom: 1rem;
 }
 
-.step.disabled .step-content h3,
-.step.disabled .step-content p {
-  color: var(--muted);
-}
-
-.step-action {
-  margin-top: 1rem;
-}
-
-/* File input styling */
-.file-input-label {
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  color: var(--primary);
-  border: 2px dashed var(--primary-light);
-  padding: 1rem 2rem;
-  border-radius: 6px;
-  transition: background 0.2s;
-  display: inline-block;
-}
-
-.file-input-label:hover {
-  background: rgba(79, 70, 229, 0.1);
-  color: var(--primary);
-}
-
-.file-input-label input {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.file-status {
-  padding: 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-}
-
-.status-success {
+.test-passed {
   background-color: rgba(16, 185, 129, 0.1);
-  color: var(--success);
-  border: 1px solid var(--success);
+  border-left: 4px solid #10b981;
 }
 
-.status-error {
+.test-failed {
   background-color: rgba(239, 68, 68, 0.1);
-  color: var(--error);
-  border: 1px solid var(--error);
-}
-
-/* Hidden elements container */
-.hidden-elements {
-  display: none;
-}
-
-/* Button styling */
-.btn {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  padding: 0.75rem 1.25rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
-  font-weight: 600;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn:hover:not(:disabled) {
-  background: var(--primary-light);
-}
-
-.btn.failed {
-  margin-left: 10px;
-  color: var(--step-failed);
-  background: rgba(239, 68, 68, 0.1);
-  cursor: unset;
-}
-
-.btn.passed {
-  margin-left: 10px;
-  color: var(--step-complete);
-  background: rgba(16, 185, 129, 0.1);
-  cursor: unset;
+  border-left: 4px solid #ef4444;
 }
 
 .hidden {
   display: none;
 }
 
-/* Results section styling */
-.results-section {
-  margin-top: 1.5rem;
+/* File input styling */
+input[type="file"] {
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0.75rem;
+  background-color: #f9fafb;
 }
 
-.results-section h2 {
-  margin-top: 1rem;
-  color: var(--muted);
-  font-size: 1.1rem;
+/* Animation for step transitions */
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-#results-list,
-#file-list {
-  list-style: none;
-  margin-top: 0.5rem;
+/* Additional styles for input feedback and highlighting */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
 }
 
-#results-list li {
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
-  border-radius: 4px;
-  background: var(--bg);
+.animate-pulse {
+  animation: pulse 1.5s infinite;
 }
 
-#file-list {
-  max-height: 200px;
-  overflow-y: auto;
-  border-top: 1px solid var(--bg);
-  padding-top: 0.5rem;
+.animate-bounce {
+  animation: bounce 1s infinite;
 }
 
-#file-list li {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.9rem;
-  color: var(--muted);
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
-#file-list li:nth-child(odd) {
-  background: var(--bg);
+#input-feedback {
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(-10px);
 }
 
-/* Step Results styling */
-.step-results {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--bg);
+#input-feedback:not(.hidden) {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.step-results h4 {
-  margin-bottom: 0.5rem;
-  color: var(--text);
-  font-size: 1rem;
+/* Highlighting for step 2 and run button when ready */
+#step-2.highlight-step {
+  transition: box-shadow 0.3s ease;
 }
 
-.step-results-list,
-.unreached-tests-list {
-  list-style: none;
-  margin-bottom: 1rem;
+.step.disabled:not(.highlight-step) button {
+  opacity: 0.6;
 }
 
-.step-results-list li,
-.unreached-tests-list li {
-  padding: 0.5rem;
-  border-radius: 4px;
+.step.disabled.highlight-step button {
+  opacity: 1;
+}
+
+#step2-info {
+  transition: all 0.3s ease;
+}
+
+/* Validation errors styling */
+#validation-errors {
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+#validation-errors:not(.hidden) {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#error-list li {
   margin-bottom: 0.25rem;
-  font-size: 0.9rem;
 }
 
-.step-results-list li.test-passed {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: var(--success);
+/* Validate button styling */
+#btn-validate-step1 {
+  position: relative;
+  overflow: hidden;
 }
 
-.step-results-list li.test-failed {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: var(--error);
+#btn-validate-step1:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background-color: rgba(255,255,255,0.2);
+  transition: none;
 }
 
-.unreached-tests-list li.test-unreached {
-  background-color: rgba(156, 163, 175, 0.1);
-  color: var(--unreached);
+#btn-validate-step1:hover:after {
+  width: 120%;
+  transition: all 0.4s ease-in-out;
+}
+
+/* Smooth transition for step status changes */
+.step {
+  transition: all 0.3s ease-out;
 }

@@ -1,4 +1,11 @@
 // main.js
-// Bootstrap the application by loading the UI manager.
-// All event listeners and logic are hooked up in uiManager.js
-import './uiManager.js';
+import UIManager from './core/uiManager.js';
+import { UnityAssignment } from './assignments/assignmentUnity.js';
+// <-- import other assignments here as you add them
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Swap out UnityAssignment for whichever you need
+  const assignment = new UnityAssignment();
+  const ui = new UIManager(assignment);
+  ui.initialize();
+});
