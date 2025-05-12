@@ -1,8 +1,8 @@
 ---
 name: Feature request
-about: Suggest an idea for the Homework Validator
-title: '[FEATURE] '
-labels: enhancement
+about: Suggest an idea for this project
+title: ''
+labels: ''
 assignees: ''
 
 ---
