@@ -1,0 +1,257 @@
+/* Instructor Interface Specific Styles */
+
+/* Component Palette */
+.component-palette {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.component-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  cursor: grab;
+  transition: all 0.2s ease;
+}
+
+.component-item:hover {
+  background-color: #f8fafc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.component-item i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Form Builder */
+.form-builder-container {
+  min-height: 400px;
+}
+
+#form-builder {
+  transition: background-color 0.2s ease;
+}
+
+#form-builder.drag-over {
+  background-color: #f0f9ff;
+  border-color: #3b82f6;
+}
+
+/* Component Preview */
+.component-preview {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.component-preview:hover {
+  background-color: #f8fafc;
+}
+
+.component-preview.selected {
+  border-color: #4f46e5;
+  background-color: #eef2ff;
+}
+
+.component-actions {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+}
+
+/* Validation Rules */
+.validation-rule {
+  transition: all 0.2s ease;
+}
+
+.validation-rule:hover {
+  background-color: #f8fafc;
+}
+
+/* Drag and Drop Visual Cues */
+.dragging {
+  opacity: 0.5;
+}
+
+.drag-placeholder {
+  border: 2px dashed #4f46e5;
+  background-color: #eef2ff;
+  height: 100px;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+}
+
+/* Modal Animation */
+#modal-container {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#modal-container.visible {
+  opacity: 1;
+}
+
+/* Rule Type Selection */
+.rule-option {
+  transition: all 0.2s ease;
+}
+
+.rule-option:hover {
+  border-color: #4f46e5;
+}
+
+.rule-option.selected {
+  background-color: #eef2ff;
+  border-color: #4f46e5;
+}
+
+/* Preview Mode */
+.preview-mode .component-actions,
+.preview-mode .component-edit-btn,
+.preview-mode .component-delete-btn {
+  display: none;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.toast {
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  min-width: 300px;
+  max-width: 400px;
+  animation: slideIn 0.3s ease forwards;
+}
+
+.toast.success {
+  border-left: 4px solid #10b981;
+}
+
+.toast.error {
+  border-left: 4px solid #ef4444;
+}
+
+.toast.info {
+  border-left: 4px solid #3b82f6;
+}
+
+.toast-icon {
+  margin-right: 0.75rem;
+  font-size: 1.25rem;
+}
+
+.toast-content {
+  flex-grow: 1;
+}
+
+.toast-title {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.toast-close {
+  color: #9ca3af;
+  cursor: pointer;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.slide-out {
+  animation: slideOut 0.3s ease forwards;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .component-palette {
+    grid-template-columns: 1fr;
+  }
+  
+  #preview-btn {
+    display: none;
+  }
+  
+  #modal-container .bg-white {
+    max-width: 90vw;
+  }
+}
+
+/* Export/Import Section */
+.export-option {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.export-option:hover {
+  background-color: #f8fafc;
+  border-color: #4f46e5;
+}
+
+.export-option i {
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+  color: #4f46e5;
+}
+
+/* Property Panel Animations */
+.property-panel-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.property-panel-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.property-panel-exit {
+  opacity: 1;
+}
+
+.property-panel-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s, transform 0.3s;
+}

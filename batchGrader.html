@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Batch Grader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+
+        .token-form {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .token-input {
+            flex: 1;
+            min-width: 300px;
+            padding: 12px 16px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .token-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: #27ae60;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .assignments-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: none;
+        }
+
+        .assignments-section.visible {
+            display: block;
+        }
+
+        .section-header {
+            background: #34495e;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .assignments-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .assignments-table th {
+            background: #ecf0f1;
+            padding: 15px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #bdc3c7;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .assignments-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #ecf0f1;
+            vertical-align: top;
+        }
+
+        .assignments-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #2c3e50;
+            min-width: 120px;
+        }
+
+        .assignment-input {
+            max-width: 200px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+
+        .comment-field {
+            width: 100%;
+            min-width: 200px;
+            min-height: 60px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .comment-field:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+
+        .file-links {
+            max-width: 200px;
+        }
+
+        .file-link {
+            display: block;
+            color: #3498db;
+            text-decoration: none;
+            margin-bottom: 5px;
+            font-size: 13px;
+            word-break: break-all;
+        }
+
+        .file-link:hover {
+            text-decoration: underline;
+        }
+
+        .grade-input {
+            width: 80px;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .grade-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+        }
+
+        .total-grade {
+            font-weight: 600;
+            color: #27ae60;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #bdc3c7;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 30px;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+
+        .success-message.visible {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .token-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .token-input {
+                min-width: auto;
+            }
+
+            .section-header {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .assignments-table {
+                font-size: 12px;
+            }
+
+            .assignments-table th,
+            .assignments-table td {
+                padding: 10px 8px;
+            }
+
+            .comment-field {
+                min-width: 150px;
+            }
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Canvas Batch Grader</h1>
+            <form class="token-form" id="tokenForm">
+                <label for="sessionToken" class="sr-only">Canvas Session Token</label>
+                <input 
+                    type="text" 
+                    id="sessionToken" 
+                    class="token-input" 
+                    placeholder="Enter your Canvas session token..."
+                    required
+                    aria-describedby="tokenHelp"
+                >
+                <button type="submit" class="btn" id="loadAssignments">
+                    Load Assignments
+                </button>
+            </form>
+            <div id="tokenHelp" class="sr-only">
+                Enter your Canvas session token to load assignments for grading
+            </div>
+        </header>
+
+        <main class="assignments-section" id="assignmentsSection">
+            <div class="section-header">
+                <h2>Assignment Submissions</h2>
+                <button class="btn btn-success" id="submitGrades">
+                    Submit All Grades to Canvas
+                </button>
+            </div>
+
+            <div class="success-message" id="successMessage">
+                Grades successfully submitted to Canvas!
+            </div>
+
+            <div class="loading" id="loadingIndicator">
+                Loading assignments...
+            </div>
+
+            <div class="table-container" id="tableContainer" style="display: none;">
+                <table class="assignments-table" role="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Student Name</th>
+                            <th scope="col">Assignment Input</th>
+                            <th scope="col">Instructor Comments</th>
+                            <th scope="col">Submitted Files</th>
+                            <th scope="col">Grade (0-100)</th>
+                            <th scope="col">Total Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assignmentsTableBody">
+                        <!-- Dynamic content will be inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mock data for assignments
+        const mockAssignments = [
+            {
+                id: 1,
+                studentName: "Alice Johnson",
+                assignmentInput: "Completed the React component assignment with proper state management and lifecycle methods. Implemented all required features including form validation and error handling.",
+                files: [
+                    "/uploads/alice_johnson/react_component.js",
+                    "/uploads/alice_johnson/styles.css",
+                    "/uploads/alice_johnson/README.md"
+                ],
+                currentGrade: 85
+            },
+            {
+                id: 2,
+                studentName: "Bob Smith",
+                assignmentInput: "Submitted the database design project with ER diagrams and SQL queries. Included normalization examples and performance optimization strategies.",
+                files: [
+                    "/uploads/bob_smith/database_design.sql",
+                    "/uploads/bob_smith/er_diagram.png"
+                ],
+                currentGrade: 92
+            },
+            {
+                id: 3,
+                studentName: "Carol Davis",
+                assignmentInput: "Created a responsive web layout using CSS Grid and Flexbox. Implemented mobile-first design principles with accessibility considerations.",
+                files: [
+                    "/uploads/carol_davis/index.html",
+                    "/uploads/carol_davis/main.css",
+                    "/uploads/carol_davis/responsive.css",
+                    "/uploads/carol_davis/screenshot.png"
+                ],
+                currentGrade: 78
+            },
+            {
+                id: 4,
+                studentName: "David Wilson",
+                assignmentInput: "Developed a Node.js API with Express framework. Implemented RESTful endpoints with proper error handling and authentication middleware.",
+                files: [
+                    "/uploads/david_wilson/server.js",
+                    "/uploads/david_wilson/routes.js",
+                    "/uploads/david_wilson/middleware.js"
+                ],
+                currentGrade: 88
+            },
+            {
+                id: 5,
+                studentName: "Emma Brown",
+                assignmentInput: "Built a machine learning model for data classification. Used Python with scikit-learn and provided detailed analysis of model performance.",
+                files: [
+                    "/uploads/emma_brown/ml_model.py",
+                    "/uploads/emma_brown/data_analysis.ipynb",
+                    "/uploads/emma_brown/results.csv"
+                ],
+                currentGrade: 95
+            },
+            {
+                id: 6,
+                studentName: "Frank Miller",
+                assignmentInput: "Implemented a sorting algorithm visualization using JavaScript and Canvas API. Created interactive controls for algorithm comparison.",
+                files: [
+                    "/uploads/frank_miller/sorting_viz.html",
+                    "/uploads/frank_miller/algorithms.js"
+                ],
+                currentGrade: 82
+            }
+        ];
+
+        // DOM elements
+        const tokenForm = document.getElementById('tokenForm');
+        const assignmentsSection = document.getElementById('assignmentsSection');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const tableContainer = document.getElementById('tableContainer');
+        const assignmentsTableBody = document.getElementById('assignmentsTableBody');
+        const submitGradesBtn = document.getElementById('submitGrades');
+        const successMessage = document.getElementById('successMessage');
+
+        // Event listeners
+        tokenForm.addEventListener('submit', handleTokenSubmit);
+        submitGradesBtn.addEventListener('click', handleSubmitGrades);
+
+        function handleTokenSubmit(e) {
+            e.preventDefault();
+            const token = document.getElementById('sessionToken').value.trim();
+            
+            if (!token) {
+                alert('Please enter a Canvas session token');
+                return;
+            }
+
+            loadAssignments();
+        }
+
+        function loadAssignments() {
+            // Show assignments section and loading indicator
+            assignmentsSection.classList.add('visible');
+            loadingIndicator.style.display = 'block';
+            tableContainer.style.display = 'none';
+            successMessage.classList.remove('visible');
+
+            // Simulate API call delay
+            setTimeout(() => {
+                populateAssignmentsTable();
+                loadingIndicator.style.display = 'none';
+                tableContainer.style.display = 'block';
+            }, 2000);
+        }
+
+        function populateAssignmentsTable() {
+            assignmentsTableBody.innerHTML = '';
+
+            mockAssignments.forEach(assignment => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="student-name">${assignment.studentName}</td>
+                    <td class="assignment-input">${assignment.assignmentInput}</td>
+                    <td>
+                        <textarea 
+                            class="comment-field" 
+                            placeholder="Enter instructor comments..."
+                            aria-label="Comments for ${assignment.studentName}"
+                        ></textarea>
+                    </td>
+                    <td class="file-links">
+                        ${assignment.files.map(file => 
+                            `<a href="#" class="file-link" onclick="handleFileClick('${file}')">${file.split('/').pop()}</a>`
+                        ).join('')}
+                    </td>
+                    <td>
+                        <input 
+                            type="number" 
+                            class="grade-input" 
+                            min="0" 
+                            max="100" 
+                            value="${assignment.currentGrade}"
+                            data-student-id="${assignment.id}"
+                            aria-label="Grade for ${assignment.studentName}"
+                            onchange="updateTotalGrade(this)"
+                        >
+                    </td>
+                    <td class="total-grade" id="total-${assignment.id}">
+                        ${assignment.currentGrade}/100
+                    </td>
+                `;
+                assignmentsTableBody.appendChild(row);
+            });
+        }
+
+        function updateTotalGrade(input) {
+            const studentId = input.dataset.studentId;
+            const grade = parseInt(input.value) || 0;
+            const totalElement = document.getElementById(`total-${studentId}`);
+            
+            // Ensure grade is within valid range
+            if (grade < 0) {
+                input.value = 0;
+                grade = 0;
+            } else if (grade > 100) {
+                input.value = 100;
+                grade = 100;
+            }
+            
+            totalElement.textContent = `${grade}/100`;
+            
+            // Add visual feedback for grade ranges
+            totalElement.style.color = grade >= 90 ? '#27ae60' : 
+                                     grade >= 80 ? '#f39c12' : 
+                                     grade >= 70 ? '#e67e22' : '#e74c3c';
+        }
+
+        function handleFileClick(filePath) {
+            // Simulate file download/view
+            alert(`Opening file: ${filePath}\n\nIn a real implementation, this would download or open the file in a new tab.`);
+        }
+
+        function handleSubmitGrades() {
+            const gradeInputs = document.querySelectorAll('.grade-input');
+            const commentFields = document.querySelectorAll('.comment-field');
+            
+            // Collect all grades and comments
+            const submissions = [];
+            gradeInputs.forEach((input, index) => {
+                const studentId = input.dataset.studentId;
+                const grade = parseInt(input.value) || 0;
+                const comment = commentFields[index].value.trim();
+                
+                submissions.push({
+                    studentId,
+                    grade,
+                    comment
+                });
+            });
+
+            // Simulate submission to Canvas
+            submitGradesBtn.disabled = true;
+            submitGradesBtn.textContent = 'Submitting...';
+
+            setTimeout(() => {
+                successMessage.classList.add('visible');
+                submitGradesBtn.disabled = false;
+                submitGradesBtn.textContent = 'Submit All Grades to Canvas';
+                
+                // Log the submissions (in real app, this would be sent to Canvas API)
+                console.log('Grades submitted:', submissions);
+                
+                // Hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.classList.remove('visible');
+                }, 5000);
+            }, 1500);
+        }
+
+        // Initialize grade totals on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add keyboard navigation support
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && e.target.classList.contains('grade-input')) {
+                    e.target.blur();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
