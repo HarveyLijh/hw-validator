@@ -274,20 +274,9 @@ export default class UIManager {
         this.inputComponents.forEach(component => {
           const element = document.getElementById(component.id);
           if (element) {
-            const { isValid, error } = component.validate(element);
-            if (!isValid && error) {
-              this.validationErrors.push(error);
-            }
-            
-            // Additional validation for file inputs to ensure ZIP format
-            if (element.type === 'file' && element.files[0]) {
-              const file = element.files[0];
-              const fileName = file.name.toLowerCase();
-              
-              // Check file extension
-              if (!fileName.endsWith('.zip')) {
-                this.validationErrors.push(`File "${file.name}" must be a ZIP file (with .zip extension)`);
-              }
+            const validation = component.validate(element);
+            if (!validation.isValid && validation.error) {
+              this.validationErrors.push(validation.error);
             }
           }
         });
@@ -296,13 +285,6 @@ export default class UIManager {
         const fileInput = formEl.querySelector('input[type="file"]');
         if (fileInput && !fileInput.files[0]) {
           this.validationErrors.push('Please select a file');
-        } else if (fileInput && fileInput.files[0]) {
-          // Check if file has .zip extension
-          const file = fileInput.files[0];
-          const fileName = file.name.toLowerCase();
-          if (!fileName.endsWith('.zip')) {
-            this.validationErrors.push(`File "${file.name}" must be a ZIP file (with .zip extension)`);
-          }
         }
       }
       
@@ -409,9 +391,12 @@ export default class UIManager {
         // Fix: Await the result of generateArtifactBody since it's an async function
         const bodyHtml = await this.assignment.generateArtifactBody(formEl, this.lastTestData);
         
+        // Collect all files from file uploader components
+        const allFiles = this.collectAllFiles(formEl);
+        
         const { generateArtifactHTML } = await import('./artifactGenerator.js');
         const full = await generateArtifactHTML({
-          file: this.lastTestData.formData.zipFile,
+          files: allFiles,
           title: this.assignment.assignmentName(),
           bodyHtml
         });
@@ -503,5 +488,25 @@ export default class UIManager {
   clearResults() {
     const div = this.stepsContainer.querySelector('#step2-results');
     div.innerHTML = '';
+  }
+
+  /**
+   * Collect all files from file uploader components
+   * @param {HTMLElement} formEl - The form element
+   * @returns {Array<File>} - Array of all uploaded files
+   */
+  collectAllFiles(formEl) {
+    const files = [];
+    
+    // Look for all file input elements in the form
+    const fileInputs = formEl.querySelectorAll('input[type="file"]');
+    
+    fileInputs.forEach(input => {
+      if (input.files && input.files[0]) {
+        files.push(input.files[0]);
+      }
+    });
+    
+    return files;
   }
 }

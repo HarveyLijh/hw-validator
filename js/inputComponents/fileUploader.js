@@ -118,11 +118,60 @@ export class FileUploaderComponent extends BaseComponent {
       };
     }
     
-    if (file && file.size > this.maxSize) {
-      return { 
-        isValid: false, 
-        error: `File "${file.name}" exceeds maximum size of ${this.maxSizeMB}MB` 
-      };
+    if (file) {
+      // Validate file size
+      if (file.size > this.maxSize) {
+        return { 
+          isValid: false, 
+          error: `File "${file.name}" exceeds maximum size of ${this.maxSizeMB}MB` 
+        };
+      }
+      
+      // Validate file extension if accept parameter is specified and not wildcard
+      if (this.accept && this.accept !== '*') {
+        const fileName = file.name.toLowerCase();
+        const acceptedExtensions = this.accept.split(',').map(ext => ext.trim().toLowerCase());
+        const hasValidExtension = acceptedExtensions.some(ext => {
+          // Handle both .ext and ext formats
+          const normalizedExt = ext.startsWith('.') ? ext : `.${ext}`;
+          return fileName.endsWith(normalizedExt);
+        });
+        
+        if (!hasValidExtension) {
+          const extensionList = acceptedExtensions.map(ext => 
+            ext.startsWith('.') ? ext : `.${ext}`
+          ).join(', ');
+          return {
+            isValid: false,
+            error: `File "${file.name}" must have one of these extensions: ${extensionList}`
+          };
+        }
+      }
+
+      // Additional validation for specific file types
+      const fileName = file.name.toLowerCase();
+      
+      // Validate PDF files
+      if (fileName.endsWith('.pdf')) {
+        // Basic MIME type check for PDF
+        if (file.type && !file.type.includes('pdf')) {
+          return {
+            isValid: false,
+            error: `File "${file.name}" does not appear to be a valid PDF file`
+          };
+        }
+      }
+      
+      // Validate ZIP files  
+      if (fileName.endsWith('.zip')) {
+        // Basic MIME type check for ZIP
+        if (file.type && !file.type.includes('zip') && !file.type.includes('compressed')) {
+          return {
+            isValid: false,
+            error: `File "${file.name}" does not appear to be a valid ZIP file`
+          };
+        }
+      }
     }
     
     return { isValid: true };
