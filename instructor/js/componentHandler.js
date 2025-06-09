@@ -2,6 +2,10 @@
 let selectedComponent = null;
 let componentCounter = 0;
 
+export function setComponentCounter(value) {
+  componentCounter = value;
+}
+
 
 function handleComponentDragStart(e, setDraggedComponent, setDraggedFromPalette) {
   const draggedElement = e.target.closest(".form-component");

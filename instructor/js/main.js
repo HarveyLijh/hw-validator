@@ -1,5 +1,5 @@
 import { openModal, closeModal } from "./modal.js";
-import { renderFormBuilder, addComponent, renderComponentContent, renderPropertiesPanel } from "./componentHandler.js";
+import { renderFormBuilder, addComponent, renderComponentContent, renderPropertiesPanel, setComponentCounter } from "./componentHandler.js";
 
 // Global state
 let formComponents = [];
@@ -214,7 +214,7 @@ function getDefaultRuleParameters(type) {
     case "imageSize":
       return { minWidth: 512, minHeight: 512, maxSize: 2048 };
     case "custom":
-      return { script: "// Custom validation logic here" };
+      return { script: "Custom validation logic here" };
     default:
       return {};
   }
@@ -332,6 +332,27 @@ function openPreview() {
   openModal("Assignment Preview", previewContent);
 }
 
+/**
+ * Safely encode a string to Base64, handling Unicode characters
+ * @param {string} str - The string to encode
+ * @returns {string} - Base64 encoded string
+ */
+function safeBase64Encode(str) {
+  try {
+    // First, encode the string as UTF-8, then to Base64
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+      return String.fromCharCode('0x' + p1);
+    }));
+  } catch (error) {
+    console.warn('Failed to encode string to Base64:', error);
+    // Fallback: create a simple hash-like identifier
+    return str.split('').reduce((hash, char) => {
+      const charCode = char.charCodeAt(0);
+      return ((hash << 5) - hash + charCode) & 0xffffffff;
+    }, 0).toString(36);
+  }
+}
+
 function exportConfiguration() {
   const config = {
     assignment: {
@@ -344,6 +365,9 @@ function exportConfiguration() {
     validationRules: validationRules,
     createdAt: new Date().toISOString(),
   };
+
+  // Generate the shareable URL identifier safely
+  const configHash = safeBase64Encode(JSON.stringify(config)).slice(0, 10);
 
   const exportContent = `
         <div>
@@ -372,9 +396,7 @@ function exportConfiguration() {
           <div id="urlExport" style="display: none;">
             <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Shareable URL</label>
             <div style="display: flex; gap: 0.5rem;">
-              <input type="text" class="form-input" id="shareableUrl" readonly value="https://validator.example.com/assignment/${btoa(
-                JSON.stringify(config)
-              ).slice(0, 10)}">
+              <input type="text" class="form-input" id="shareableUrl" readonly value="https://validator.example.com/assignment/${configHash}">
               <button onclick="copyUrl()" class="btn btn-primary" style="background: #667eea; color: white;">
                 <i class="fas fa-copy"></i>
               </button>
@@ -443,6 +465,270 @@ function copyUrl() {
   }, 1000);
 }
 
+function importConfiguration() {
+  const importContent = `
+    <div>
+      <p style="margin-bottom: 1rem;">Import a previously exported configuration:</p>
+      
+      <div class="form-group">
+        <label class="form-label">Select Configuration File</label>
+        <input type="file" id="configFile" class="form-input" accept=".json" onchange="handleFileSelect()">
+        <small style="color: #64748b; margin-top: 0.5rem; display: block;">
+          Select a JSON configuration file exported from the Homework Validator
+        </small>
+      </div>
+      
+      <div id="importPreview" style="display: none; margin-top: 1rem;">
+        <label class="form-label">Configuration Preview</label>
+        <div id="configPreviewContent" style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; border: 1px solid #e2e8f0; max-height: 200px; overflow-y: auto;">
+        </div>
+        <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
+          <button onclick="closeModal()" class="btn" style="background: #e2e8f0; color: #475569;">
+            Cancel
+          </button>
+          <button onclick="confirmImport()" class="btn btn-primary">
+            <i class="fas fa-upload"></i>
+            Import Configuration
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  openModal("Import Configuration", importContent);
+}
+
+function handleFileSelect() {
+  const fileInput = document.getElementById('configFile');
+  const file = fileInput.files[0];
+  const previewDiv = document.getElementById('importPreview');
+  const previewContent = document.getElementById('configPreviewContent');
+
+  if (!file) {
+    previewDiv.style.display = 'none';
+    return;
+  }
+
+  if (file.type !== 'application/json' && !file.name.endsWith('.json')) {
+    alert('Please select a valid JSON file.');
+    fileInput.value = '';
+    previewDiv.style.display = 'none';
+    return;
+  }
+
+  // Check file size (optional - prevent extremely large files)
+  if (file.size > 1024 * 1024) { // 1MB limit
+    alert('File is too large. Please select a file smaller than 1MB.');
+    fileInput.value = '';
+    previewDiv.style.display = 'none';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const jsonText = e.target.result;
+      
+      // Remove any BOM or comments that might be in the JSON file
+      const cleanJson = jsonText.replace(/^\uFEFF/, '').replace(/\/\/.*$/gm, '');
+      console.log('Parsed configuration:', cleanJson);
+      
+      const config = JSON.parse(cleanJson);
+      // Validate the configuration structure
+      if (!validateConfigStructure(config)) {
+        alert('Invalid configuration file structure. Please ensure you are importing a valid Homework Validator configuration.\n\nThe file must contain:\n- assignment object with name\n- components array\n- validationRules array');
+        fileInput.value = '';
+        previewDiv.style.display = 'none';
+        return;
+      }
+
+      // Store the parsed config for import
+      window.pendingImportConfig = config;
+      
+      // Show preview
+      previewContent.innerHTML = `
+        <div>
+          <h4 style="margin: 0 0 0.5rem 0; color: #1e293b;">Assignment: ${config.assignment.name}</h4>
+          <p style="margin: 0 0 1rem 0; color: #64748b; font-size: 0.875rem;">${config.assignment.description || 'No description'}</p>
+          <p style="margin: 0 0 0.5rem 0; color: #64748b; font-size: 0.875rem;">
+            <strong>Components:</strong> ${config.components.length}
+          </p>
+          <p style="margin: 0; color: #64748b; font-size: 0.875rem;">
+            <strong>Validation Rules:</strong> ${config.validationRules.length}
+          </p>
+          ${config.components.length > 0 ? `
+            <div style="margin-top: 1rem;">
+              <strong style="color: #374151; font-size: 0.875rem;">Components:</strong>
+              <ul style="margin: 0.5rem 0 0 1rem; color: #64748b; font-size: 0.875rem;">
+                ${config.components.map(comp => `<li>${comp.label} (${comp.type})</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+          ${config.validationRules.length > 0 ? `
+            <div style="margin-top: 1rem;">
+              <strong style="color: #374151; font-size: 0.875rem;">Validation Rules:</strong>
+              <ul style="margin: 0.5rem 0 0 1rem; color: #64748b; font-size: 0.875rem;">
+                ${config.validationRules.map(rule => `<li>${rule.name} (${rule.type})</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+        </div>
+      `;
+      
+      previewDiv.style.display = 'block';
+      
+    } catch (error) {
+      console.error('JSON parsing error:', error);
+      let errorMessage = 'Error parsing JSON file. Please ensure the file is valid JSON.';
+      
+      if (error.message.includes('Unexpected token')) {
+        errorMessage += '\n\nTip: Check for missing commas, brackets, or quotes in the JSON file.';
+      }
+      
+      alert(errorMessage);
+      fileInput.value = '';
+      previewDiv.style.display = 'none';
+    }
+  };
+  
+  reader.onerror = function() {
+    alert('Error reading file. Please try again.');
+    fileInput.value = '';
+    previewDiv.style.display = 'none';
+  };
+  
+  reader.readAsText(file);
+}
+
+function validateConfigStructure(config) {
+  // Check if config has required top-level properties
+  if (!config || typeof config !== 'object') return false;
+  if (!config.assignment || typeof config.assignment !== 'object') return false;
+  if (!config.components || !Array.isArray(config.components)) return false;
+  if (!config.validationRules || !Array.isArray(config.validationRules)) return false;
+
+  // Check assignment structure
+  if (typeof config.assignment.name !== 'string') return false;
+
+  // Check components structure - allow for various component types
+  for (const component of config.components) {
+    if (!component.id || !component.type || !component.label) return false;
+    if (typeof component.required !== 'boolean') {
+      // Set default if missing
+      component.required = false;
+    }
+  }
+
+  // Validate component types against known types
+  const validComponentTypes = ['fileUpload', 'textInput', 'collaborators', 'checkbox', 'dropdown', 'datePicker'];
+  for (const component of config.components) {
+    if (!validComponentTypes.includes(component.type)) {
+      console.warn(`Unknown component type: ${component.type}. Import will continue but component may not render correctly.`);
+    }
+  }
+
+  return true;
+}
+
+function confirmImport() {
+  const config = window.pendingImportConfig;
+  
+  if (!config) {
+    alert('No configuration to import.');
+    return;
+  }
+
+  // Check if there's existing data
+  const hasExistingData = formComponents.length > 0 || 
+                         validationRules.length > 0 || 
+                         document.getElementById('assignmentName').value.trim() !== '' ||
+                         document.getElementById('assignmentDescription').value.trim() !== '';
+
+  if (hasExistingData) {
+    const confirmReplace = confirm(
+      'This will replace your current configuration. All existing components, validation rules, and assignment details will be lost. Are you sure you want to continue?'
+    );
+    
+    if (!confirmReplace) {
+      return;
+    }
+  }
+
+  try {
+    // Clear existing data
+    formComponents.length = 0;
+    validationRules.length = 0;
+
+    // Import assignment info
+    document.getElementById('assignmentName').value = config.assignment.name;
+    document.getElementById('assignmentDescription').value = config.assignment.description || '';
+
+    // Import components with deep copy to avoid reference issues
+    config.components.forEach(component => {
+      formComponents.push({ ...component });
+    });
+
+    // Import validation rules with deep copy
+    config.validationRules.forEach(rule => {
+      validationRules.push({ ...rule });
+    });
+
+    // Update component counter to avoid ID conflicts
+    const maxComponentId = Math.max(
+      0,
+      ...formComponents.map(comp => {
+        const match = comp.id.match(/component_(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+      })
+    );
+    
+    // Update the component counter to avoid conflicts with new components
+    setComponentCounter(maxComponentId);
+
+    // Re-render everything
+    renderFormBuilder(formComponents);
+    renderPropertiesPanel(formComponents);
+    renderValidationRules();
+
+    // Close modal and show success message
+    closeModal();
+    
+    // Show success feedback
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #10b981;
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      z-index: 10000;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      font-weight: 500;
+    `;
+    notification.innerHTML = `
+      <i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i>
+      Configuration imported successfully!
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 3000);
+
+    // Clean up
+    delete window.pendingImportConfig;
+    
+  } catch (error) {
+    console.error('Import error:', error);
+    alert('An error occurred while importing the configuration. Please try again.');
+  }
+}
+
 function createValidationRule(type) {
   const parameters = getDefaultRuleParameters(type);
   const ruleId = `rule_${Date.now()}`;
@@ -471,6 +757,9 @@ document.addEventListener("keydown", function (e) {
 // Make functions globally available for inline onclick handlers
 window.openPreview = openPreview;
 window.exportConfiguration = exportConfiguration;
+window.importConfiguration = importConfiguration;
+window.handleFileSelect = handleFileSelect;
+window.confirmImport = confirmImport;
 window.closeModal = closeModal;
 window.toggleExportFormat = toggleExportFormat;
 window.downloadConfig = downloadConfig;

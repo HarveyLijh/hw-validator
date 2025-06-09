@@ -1,0 +1,72 @@
+{
+  "assignment": {
+    "name": "Unity A* Assignment",
+    "description": "Subject your A* Assignment's zipped unity project and pdf assignment report"
+  },
+  "components": [
+    {
+      "id": "component_1",
+      "type": "collaborators",
+      "label": "Enter Your Collaborators' UCSC Emails",
+      "required": true,
+      "maxCollaborators": 5
+    },
+    {
+      "id": "component_2",
+      "type": "fileUpload",
+      "label": "Upload Zipped Unity Project",
+      "required": false,
+      "acceptedTypes": ".zip",
+      "maxSize": "50",
+      "allowMultiple": false
+    },
+    {
+      "id": "component_3",
+      "type": "fileUpload",
+      "label": "Upload PDF Report",
+      "required": false,
+      "acceptedTypes": ".pdf",
+      "maxSize": "10",
+      "allowMultiple": false
+    }
+  ],
+  "validationRules": [
+    {
+      "id": "rule_1749507142000",
+      "type": "fileExtension",
+      "name": "FileExtension Rule",
+      "successMessage": "✅ fileExtension validation passed",
+      "failureMessage": "❌ fileExtension validation failed",
+      "parameters": {
+        "allowedExtensions": [
+          ".cs",
+          ".unity",
+          ".prefab"
+        ]
+      }
+    },
+    {
+      "id": "rule_1749507143454",
+      "type": "imageSize",
+      "name": "ImageSize Rule",
+      "successMessage": "✅ imageSize validation passed",
+      "failureMessage": "❌ imageSize validation failed",
+      "parameters": {
+        "minWidth": 512,
+        "minHeight": 512,
+        "maxSize": 2048
+      }
+    },
+    {
+      "id": "rule_1749507145500",
+      "type": "custom",
+      "name": "Custom Rule",
+      "successMessage": "✅ custom validation passed",
+      "failureMessage": "❌ custom validation failed",
+      "parameters": {
+        "script": "Custom validation logic here"
+      }
+    }
+  ],
+  "createdAt": "2025-06-09T22:12:28.346Z"
+}
