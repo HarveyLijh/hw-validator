@@ -16,7 +16,70 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeDragAndDrop();
   // Initialize the properties panel display
   renderPropertiesPanel(formComponents);
+  
+  // Check for AI-generated configuration import
+  checkForAIImport();
 });
+
+/**
+ * Check if we need to import an AI-generated configuration
+ */
+function checkForAIImport() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const aiGeneratedConfig = localStorage.getItem('aiGeneratedConfig');
+  
+  if (urlParams.get('import') === 'ai' && aiGeneratedConfig) {
+    try {
+      const config = JSON.parse(aiGeneratedConfig);
+      
+      // Show import confirmation modal
+      const importContent = `
+        <div>
+          <div class="ai-import-header">
+            <i class="fas fa-robot" style="font-size: 2rem; color: #667eea; margin-bottom: 1rem;"></i>
+            <h3>Import AI-Generated Configuration</h3>
+            <p>The AI Assistant has generated a configuration for your assignment:</p>
+          </div>
+          
+          <div class="ai-config-preview">
+            <h4>${config.assignment.name}</h4>
+            <p>${config.assignment.description || 'No description provided'}</p>
+            <div style="margin-top: 1rem;">
+              <strong>Components (${config.components.length}):</strong>
+              <ul style="margin: 0.5rem 0 0 1rem; color: #64748b; font-size: 0.875rem;">
+                ${config.components.map(comp => `<li>${comp.label} (${comp.type})</li>`).join('')}
+              </ul>
+            </div>
+            ${config.validationRules.length > 0 ? `
+              <div style="margin-top: 1rem;">
+                <strong>Validation Rules (${config.validationRules.length}):</strong>
+                <ul style="margin: 0.5rem 0 0 1rem; color: #64748b; font-size: 0.875rem;">
+                  ${config.validationRules.map(rule => `<li>${rule.name} (${rule.type})</li>`).join('')}
+                </ul>
+              </div>
+            ` : ''}
+          </div>
+          
+          <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
+            <button onclick="cancelAIImport()" class="btn" style="background: #e2e8f0; color: #475569;">
+              Cancel
+            </button>
+            <button onclick="confirmAIImport()" class="btn btn-primary">
+              <i class="fas fa-robot"></i>
+              Import AI Configuration
+            </button>
+          </div>
+        </div>
+      `;
+      
+      openModal("AI Assistant Import", importContent);
+      
+    } catch (error) {
+      console.error('Failed to parse AI configuration:', error);
+      localStorage.removeItem('aiGeneratedConfig');
+    }
+  }
+}
 
 function initializeDragAndDrop() {
   const componentItems = document.querySelectorAll(".component-item");
@@ -260,6 +323,122 @@ function renderValidationRules() {
           Add Validation Rule
         </button>
       `;
+}
+
+function editValidationRule(ruleId) {
+  const rule = validationRules.find(r => r.id === ruleId);
+  if (!rule) {
+    alert('Validation rule not found.');
+    return;
+  }
+
+  const modalContent = `
+    <div>
+      <h3 style="margin-bottom: 1rem;">Edit Validation Rule</h3>
+      
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label">Rule Name</label>
+        <input type="text" id="editRuleName" class="form-input" value="${rule.name}" placeholder="Enter rule name">
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label">Rule Type</label>
+        <select id="editRuleType" class="form-input" disabled>
+          <option value="${rule.type}">${rule.type.charAt(0).toUpperCase() + rule.type.slice(1)} Check</option>
+        </select>
+        <small style="color: #64748b; margin-top: 0.5rem; display: block;">
+          Rule type cannot be changed after creation
+        </small>
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label">Success Message</label>
+        <input type="text" id="editSuccessMessage" class="form-input" value="${rule.successMessage}" placeholder="Message when validation passes">
+      </div>
+      
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label">Failure Message</label>
+        <input type="text" id="editFailureMessage" class="form-input" value="${rule.failureMessage}" placeholder="Message when validation fails">
+      </div>
+      
+      <div style="margin-top: 1.5rem; display: flex; gap: 0.5rem; justify-content: flex-end;">
+        <button onclick="closeModal()" class="btn" style="background: #e2e8f0; color: #475569;">
+          Cancel
+        </button>
+        <button onclick="saveValidationRule('${ruleId}')" class="btn btn-primary">
+          <i class="fas fa-save"></i>
+          Save Changes
+        </button>
+      </div>
+    </div>
+  `;
+
+  openModal("Edit Validation Rule", modalContent);
+}
+
+function saveValidationRule(ruleId) {
+  const rule = validationRules.find(r => r.id === ruleId);
+  if (!rule) {
+    alert('Validation rule not found.');
+    return;
+  }
+
+  const name = document.getElementById('editRuleName').value.trim();
+  const successMessage = document.getElementById('editSuccessMessage').value.trim();
+  const failureMessage = document.getElementById('editFailureMessage').value.trim();
+
+  if (!name) {
+    alert('Please enter a rule name.');
+    return;
+  }
+
+  if (!successMessage) {
+    alert('Please enter a success message.');
+    return;
+  }
+
+  if (!failureMessage) {
+    alert('Please enter a failure message.');
+    return;
+  }
+
+  // Update the rule
+  rule.name = name;
+  rule.successMessage = successMessage;
+  rule.failureMessage = failureMessage;
+
+  // Re-render the validation rules
+  renderValidationRules();
+  
+  // Close modal and show success message
+  closeModal();
+  
+  // Show success feedback
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #10b981;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    z-index: 10000;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    font-weight: 500;
+  `;
+  notification.innerHTML = `
+    <i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i>
+    Validation rule updated successfully!
+  `;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.remove();
+    }
+  }, 3000);
 }
 
 function deleteValidationRule(ruleId) {
@@ -747,6 +926,112 @@ function createValidationRule(type) {
   closeModal();
 }
 
+/**
+ * Confirm AI-generated configuration import
+ */
+function confirmAIImport() {
+  try {
+    const aiGeneratedConfig = localStorage.getItem('aiGeneratedConfig');
+    if (!aiGeneratedConfig) {
+      alert('AI configuration not found.');
+      return;
+    }
+
+    const config = JSON.parse(aiGeneratedConfig);
+    
+    // Clear existing data
+    formComponents.length = 0;
+    validationRules.length = 0;
+    
+    // Set assignment details
+    document.getElementById('assignmentName').value = config.assignment.name || '';
+    document.getElementById('assignmentDescription').value = config.assignment.description || '';
+
+    // Import components with deep copy
+    config.components.forEach(component => {
+      formComponents.push({ ...component });
+    });
+
+    // Import validation rules with deep copy
+    config.validationRules.forEach(rule => {
+      validationRules.push({ ...rule });
+    });
+
+    // Update component counter to avoid ID conflicts
+    const maxComponentId = Math.max(
+      0,
+      ...formComponents.map(comp => {
+        const match = comp.id.match(/component_(\d+)/);
+        return match ? parseInt(match[1]) : 0;
+      })
+    );
+    
+    // Update the component counter to avoid conflicts with new components
+    setComponentCounter(maxComponentId);
+
+    // Re-render everything
+    renderFormBuilder(formComponents);
+    renderPropertiesPanel(formComponents);
+    renderValidationRules();
+
+    // Close modal and show success message
+    closeModal();
+    
+    // Clear AI configuration from localStorage
+    localStorage.removeItem('aiGeneratedConfig');
+    
+    // Update URL to remove import parameter
+    const url = new URL(window.location);
+    url.searchParams.delete('import');
+    window.history.replaceState({}, document.title, url);
+    
+    // Show success feedback
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      z-index: 10000;
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+      font-weight: 500;
+    `;
+    notification.innerHTML = `
+      <i class="fas fa-robot" style="margin-right: 0.5rem;"></i>
+      AI configuration imported successfully!
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 3000);
+    
+  } catch (error) {
+    console.error('AI import error:', error);
+    alert('An error occurred while importing the AI configuration. Please try again.');
+  }
+}
+
+/**
+ * Cancel AI configuration import
+ */
+function cancelAIImport() {
+  localStorage.removeItem('aiGeneratedConfig');
+  
+  // Update URL to remove import parameter
+  const url = new URL(window.location);
+  url.searchParams.delete('import');
+  window.history.replaceState({}, document.title, url);
+  
+  closeModal();
+}
+
 // Keyboard shortcuts
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") {
@@ -760,12 +1045,17 @@ window.exportConfiguration = exportConfiguration;
 window.importConfiguration = importConfiguration;
 window.handleFileSelect = handleFileSelect;
 window.confirmImport = confirmImport;
+window.confirmAIImport = confirmAIImport;
+window.cancelAIImport = cancelAIImport;
 window.closeModal = closeModal;
 window.toggleExportFormat = toggleExportFormat;
 window.downloadConfig = downloadConfig;
 window.copyUrl = copyUrl;
 window.addValidationRule = addValidationRule;
 window.createValidationRule = createValidationRule;
+window.editValidationRule = editValidationRule;
+window.saveValidationRule = saveValidationRule;
+window.deleteValidationRule = deleteValidationRule;
 
 // Close modal when clicking outside
 document.getElementById("modal").addEventListener("click", function (e) {

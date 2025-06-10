@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome AI Demo - Homework Validator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="./css/styles.css">
+    <style>
+        .demo-section {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .demo-header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .demo-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .demo-header p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .feature-card i {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .demo-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .demo-btn-primary:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .demo-btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .demo-btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .setup-steps {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .setup-steps h3 {
+            color: #92400e;
+            margin-bottom: 1rem;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-content code {
+            background: #f1f5f9;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        .browser-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f1f5f9;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .status-unknown {
+            color: #64748b;
+        }
+
+        .example-prompts {
+            background: #ecfdf5;
+            border: 1px solid #d1fae5;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .example-prompts h3 {
+            color: #065f46;
+            margin-bottom: 1rem;
+        }
+
+        .prompt-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .prompt-list li {
+            background: white;
+            border: 1px solid #d1fae5;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            position: relative;
+        }
+
+        .prompt-list li:before {
+            content: "💡";
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="demo-header">
+            <h1>
+                <i class="fas fa-brain"></i>
+                Chrome AI Assistant
+            </h1>
+            <p>Leverage Chrome's built-in AI to generate homework validator configurations using natural language</p>
+        </div>
+
+        <div class="demo-section">
+            <h2>🎯 Browser Compatibility Check</h2>
+            <div class="browser-status" id="browserStatus">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span class="status-unknown">Checking Chrome AI availability...</span>
+            </div>
+            <p style="text-align: center; color: #64748b; font-size: 0.875rem;">
+                This check runs automatically to determine if your browser supports Chrome AI features.
+            </p>
+        </div>
+
+        <div class="demo-actions">
+            <a href="ai-assistant.html" class="demo-btn demo-btn-primary">
+                <i class="fas fa-robot"></i>
+                Try AI Assistant
+            </a>
+
+            <a href="index.html" class="demo-btn demo-btn-secondary">
+                <i class="fas fa-tools"></i>
+                Manual Designer
+            </a>
+
+            <button onclick="location.reload()" class="demo-btn demo-btn-secondary">
+                <i class="fas fa-refresh"></i>
+                Recheck Browser
+            </button>
+        </div>
+
+        <div class="demo-section">
+            <h2>🔍 How It Works</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div style="text-align: center;">
+                    <div
+                        style="background: #667eea; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                        1</div>
+                    <h4>Describe Assignment</h4>
+                    <p style="color: #64748b; font-size: 0.875rem;">Use natural language to describe your homework
+                        requirements</p>
+                </div>
+
+                <div style="text-align: center;">
+                    <div
+                        style="background: #667eea; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                        2</div>
+                    <h4>AI Processing</h4>
+                    <p style="color: #64748b; font-size: 0.875rem;">Chrome's local AI analyzes your requirements and
+                        generates configuration</p>
+                </div>
+
+                <div style="text-align: center;">
+                    <div
+                        style="background: #667eea; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                        3</div>
+                    <h4>Download & Use</h4>
+                    <p style="color: #64748b; font-size: 0.875rem;">Get JSON configuration or import directly into the
+                        designer</p>
+                </div>
+            </div>
+        </div>
+        <div class="demo-section">
+            <h2>📝 Example Prompts</h2>
+            <div class="example-prompts">
+                <h3>Try these assignment ideas:</h3>
+                <ul class="prompt-list">
+                    <li><strong>Unity Game Development:</strong> "Create a Unity assignment that accepts zipped project
+                        files, requires team member emails, validates C# scripts, and includes a confirmation checkbox."
+                    </li>
+
+                    <li><strong>Python Programming:</strong> "Generate a Python assignment with uploads for .py and
+                        .ipynb files, a text field for algorithm description, and validation for required imports."</li>
+
+                    <li><strong>Web Development:</strong> "Make a web dev assignment with separate uploads for HTML,
+                        CSS, JS files, image assets, and a dropdown for framework selection."</li>
+
+                    <li><strong>Data Science:</strong> "Create a machine learning assignment that accepts Jupyter
+                        notebooks, CSV datasets, includes model type selection, and validates visualization images."
+                    </li>
+
+                    <li><strong>Research Project:</strong> "Generate an assignment combining PDF reports, source code
+                        files, project summaries, and team collaboration tracking."</li>
+                </ul>
+            </div>
+        </div>
+        <div class="demo-section">
+            <h2>🚀 What is Chrome AI?</h2>
+            <p>Chrome's built-in AI (Prompt API) allows web applications to access a local language model directly in
+                the browser. This means:</p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Privacy First</h3>
+                    <p>All processing happens locally on your device. No data is sent to external servers.</p>
+                </div>
+
+                <div class="feature-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Fast Response</h3>
+                    <p>No network latency - instant AI responses without internet dependency.</p>
+                </div>
+
+                <div class="feature-card">
+                    <i class="fa-brands fa-creative-commons-zero"></i>
+                    <h3>Free to Use</h3>
+                    <p>No API costs or usage limits - unlimited AI assistance for your assignments.</p>
+                </div>
+
+                <div class="feature-card">
+                    <i class="fas fa-wifi"></i>
+                    <h3>Works Offline</h3>
+                    <p>Once the model is downloaded, it works without an internet connection.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🔧 Setup Requirements</h2>
+            <div class="setup-steps">
+                <h3><i class="fas fa-exclamation-triangle"></i> Chrome AI is currently experimental</h3>
+                <p>Follow these steps to enable Chrome's built-in AI:</p>
+
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <strong>Update Chrome</strong><br>
+                        Ensure you're using Chrome version 127 or later. Check at <code>chrome://settings/help</code>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <strong>Enable Experimental Flags</strong><br>
+                        Go to <code>chrome://flags</code> and enable:
+                        <ul style="margin-top: 0.5rem;">
+                            <li><strong>Prompt API for Gemini Nano</strong> - Set to "Enabled"</li>
+                            <li><strong>Enables optimization guide on device</strong> - Set to "Enabled"</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <strong>Restart Chrome</strong><br>
+                        Close Chrome completely and restart it for the flags to take effect.
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <strong>Model Download</strong><br>
+                        The first time you use the AI, Chrome will download the language model (~1GB). This may take
+                        several minutes.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <script>
+        // Check Chrome AI availability
+        async function checkChromeAI() {
+            const statusElement = document.getElementById('browserStatus');
+
+            try {
+                const AIAvailability = await LanguageModel.availability();
+
+                if (AIAvailability === "downloadable") {
+                    statusElement.innerHTML = `
+            <i class="fas fa-download" style="color: #f59e0b;"></i>
+            <span style="color: #f59e0b;">This browser supports Chrome AI, but the model is not downloaded yet. Attempting to initialize...</span>
+          `;
+
+                    try {
+                        // Try to create a session which may trigger download
+                        const session = await LanguageModel.create();
+                        statusElement.innerHTML = `
+              <i class="fas fa-check-circle" style="color: #059669;"></i>
+              <span style="color: #059669;">Chrome AI ready! ✨ You can use the AI Assistant</span>
+            `;
+                        await session.destroy();
+                    } catch (error) {
+                        console.error("Session creation failed:", error);
+                        statusElement.innerHTML = `
+              <i class="fas fa-times-circle" style="color: #dc2626;"></i>
+              <span style="color: #dc2626;">Chrome AI model download required. Please try the AI Assistant to trigger download.</span>
+            `;
+                    }
+                    return;
+                } else if (AIAvailability === "downloading") {
+                    statusElement.innerHTML = `
+            <i class="fas fa-spinner fa-spin" style="color: #3b82f6;"></i>
+            <span style="color: #3b82f6;">The AI model is currently downloading. Please wait and try again later.</span>
+          `;
+                    return;
+                } else if (AIAvailability === "available") {
+                    statusElement.innerHTML = `
+            <i class="fas fa-check-circle" style="color: #059669;"></i>
+            <span style="color: #059669;">Chrome AI ready! ✨ You can use the AI Assistant</span>
+          `;
+                    return;
+                } else {
+                    statusElement.innerHTML = `
+            <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+            <span style="color: #f59e0b;">The AI feature is not available in this browser. Please ensure you have the latest version of Chrome and have enabled the experimental AI features.</span>
+          `;
+                    return;
+                }
+            } catch (error) {
+                console.error("AI availability check failed:", error);
+                statusElement.innerHTML = `
+          <i class="fas fa-times-circle" style="color: #dc2626;"></i>
+          <span style="color: #dc2626;">Error checking Chrome AI: ${error.message}</span>
+        `;
+            }
+        }
+
+        // Run check when page loads
+        document.addEventListener('DOMContentLoaded', checkChromeAI);
+    </script>
+</body>
+
+</html>

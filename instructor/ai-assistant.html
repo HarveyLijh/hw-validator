@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Assistant - Homework Validator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/ai-assistant.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <h1>
+          <i class="fas fa-robot"></i>
+          AI Assignment Assistant
+        </h1>
+        <div class="header-buttons">
+          <button class="btn btn-primary" onclick="window.location.href='index.html'">
+            <i class="fas fa-arrow-left"></i>
+            Back to Designer
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="ai-layout">
+      <!-- Status Panel -->
+      <div class="panel status-panel">
+        <h2>
+          <i class="fas fa-brain"></i>
+          Chrome AI Status
+        </h2>
+        <div id="aiStatus" class="status-content">
+          <div class="status-loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Checking Chrome AI availability...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Interface -->
+      <div class="panel chat-panel">
+        <h2>
+          <i class="fas fa-comments"></i>
+          Assignment Generator
+        </h2>
+        
+        <div class="chat-container" id="chatContainer">
+          <div class="chat-message assistant-message">
+            <div class="message-avatar">
+              <i class="fas fa-robot"></i>
+            </div>
+            <div class="message-content">
+              <p>Hello! I'm your AI Assignment Assistant. I can help you create homework validator configurations using natural language.</p>
+              <p><strong>Example prompts to try:</strong></p>
+              <ul>
+                <li>"Create a Unity project assignment that accepts .zip files, requires collaborator emails, and validates C# scripts"</li>
+                <li>"I need a Python assignment that accepts .py and .ipynb files, has a text input for description, and checks for proper imports"</li>
+                <li>"Generate a web development assignment with separate uploads for HTML, CSS, JS files and a checkbox for original work confirmation"</li>
+                <li>"Create a machine learning assignment that accepts Jupyter notebooks, has a dropdown for model type selection, and validates image sizes"</li>
+                <li>"Make an assignment for data analysis that requires CSV data files, Python scripts, and a report PDF"</li>
+              </ul>
+              <p><strong>I can generate:</strong> File upload components, text inputs, collaborator fields, checkboxes, dropdowns, date pickers, and relevant validation rules!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-container" id="chatInputContainer">
+          <div class="quick-actions" id="quickActions">
+            <h4>Quick Start Templates:</h4>
+            <div class="quick-action-buttons">
+              <button class="quick-action-btn" onclick="useQuickPrompt('unity')">
+                <i class="fas fa-cube"></i>
+                Unity Project
+              </button>
+              <button class="quick-action-btn" onclick="useQuickPrompt('python')">
+                <i class="fab fa-python"></i>
+                Python Assignment
+              </button>
+              <button class="quick-action-btn" onclick="useQuickPrompt('web')">
+                <i class="fas fa-code"></i>
+                Web Development
+              </button>
+              <button class="quick-action-btn" onclick="useQuickPrompt('ml')">
+                <i class="fas fa-brain"></i>
+                Machine Learning
+              </button>
+              <button class="quick-action-btn" onclick="useQuickPrompt('report')">
+                <i class="fas fa-file-alt"></i>
+                Report + Code
+              </button>
+            </div>
+          </div>
+          
+          <div class="input-group">
+            <textarea 
+              id="userInput" 
+              placeholder="Describe the assignment you want to create..." 
+              rows="3"
+              disabled
+            ></textarea>
+            <button id="sendButton" class="send-btn" disabled>
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generated Configuration Panel -->
+      <div class="panel config-panel">
+        <h2>
+          <i class="fas fa-code"></i>
+          Generated Configuration
+        </h2>
+        
+        <div id="configContent" class="config-content">
+          <div class="empty-state">
+            <i class="fas fa-file-code"></i>
+            <p>Generated configurations will appear here</p>
+          </div>
+        </div>
+        
+        <div class="config-actions" id="configActions" style="display: none;">
+          <button class="btn btn-primary" onclick="downloadGeneratedConfig()">
+            <i class="fas fa-download"></i>
+            Download JSON
+          </button>
+          <button class="btn btn-primary" onclick="importToDesigner()">
+            <i class="fas fa-arrow-right"></i>
+            Import to Designer
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Setup Instructions Modal -->
+  <div class="modal" id="setupModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Enable Chrome AI</h2>
+        <button class="close-btn" onclick="closeSetupModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="setup-instructions">
+          <div class="instruction-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Update Chrome</h3>
+              <p>Ensure you're using Chrome version 127 or later. You can check your version at <code>chrome://settings/help</code></p>
+            </div>
+          </div>
+          
+          <div class="instruction-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Enable Experimental Features</h3>
+              <p>Navigate to <code>chrome://flags</code> and enable these flags:</p>
+              <ul>
+                <li><strong>Prompt API for Gemini Nano</strong> - Set to "Enabled"</li>
+                <li><strong>Enables optimization guide on device</strong> - Set to "Enabled"</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="instruction-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Restart Chrome</h3>
+              <p>Close and restart Chrome completely for the changes to take effect.</p>
+            </div>
+          </div>
+          
+          <div class="instruction-step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h3>Model Download</h3>
+              <p>The first time you use Chrome AI, it may need to download the language model. This can take a few minutes depending on your internet connection.</p>
+            </div>
+          </div>
+          
+          <div class="setup-note">
+            <i class="fas fa-info-circle"></i>
+            <p><strong>Note:</strong> Chrome's built-in AI features are experimental and may not be available on all devices. The feature requires a compatible device with sufficient storage and memory.</p>
+          </div>
+        </div>
+        
+        <div class="modal-actions">
+          <button class="btn btn-primary" onclick="recheckAI()">
+            <i class="fas fa-refresh"></i>
+            Recheck AI Status
+          </button>
+          <button class="btn" onclick="closeSetupModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/ai-assistant.js"></script>
+</body>
+</html>
